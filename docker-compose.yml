@@ -1,0 +1,29 @@
+version: "2.4"
+
+services:
+  pihole:
+    build:
+      context: ./pihole
+    tmpfs:
+      - /var/log/pihole
+    network_mode: host
+    environment:
+      DNSMASQ_LISTENING: 'all'
+      WEB_BIND_ADDR: 0.0.0.0
+    # Volumes store your data between container upgrades
+    volumes:
+      - 'pihole-data:/etc/pihole'
+      - 'dnsmasq-data:/etc/dnsmasq.d'
+    restart: unless-stopped
+  minipadd:
+    build:
+      context: ./
+    environment:
+      PIHOLE_HOST: pihole
+      PIHOLE_PORT: 4711
+    volumes:
+      - 'pihole-data:/etc/pihole'
+
+volumes:
+  pihole-data:
+  dnsmasq-data:
