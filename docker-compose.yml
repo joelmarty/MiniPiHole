@@ -1,4 +1,4 @@
-version: "2.4"
+version: "2"
 
 services:
   pihole:
@@ -16,11 +16,13 @@ services:
       - 'dnsmasq-data:/etc/dnsmasq.d'
     restart: unless-stopped
   minipadd:
-    build:
-      context: ./
+    build: .
     environment:
       PIHOLE_HOST: pihole
       PIHOLE_PORT: 4711
+    devices:
+      - /dev/spidev0.0
+      - /dev/spidev0.1
     volumes:
       - 'pihole-data:/etc/pihole'
 

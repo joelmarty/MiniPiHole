@@ -13,9 +13,9 @@ FROM balenalib/raspberry-pi-alpine-python:3.12-run AS run
 WORKDIR /app
 
 COPY --from=build /app/venv /app/venv
-COPY ./minipadd ./
-COPY ./main.py ./
+COPY ./demo_opts.py ./
+COPY ./snow.py.py ./
 
 # Make sure we use the virtualenv:
 ENV PATH="/app/venv/bin:$PATH"
-CMD ["/app/venv/bin/python", "/app/main.py"]
+CMD ["/app/snow.py"]
