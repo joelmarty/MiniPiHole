@@ -1,4 +1,5 @@
-from typing import Union, get_type_hints
+from typing import Union, get_type_hints, Literal
+from envfileparser import get_env_from_file
 
 
 class AppConfigError(Exception):
@@ -11,13 +12,14 @@ def _parse_bool(val: Union[str, bool]) -> bool:  # pylint: disable=E1136
 
 # AppConfig class with required fields, default values, type checking, and typecasting for int and bool values
 class AppConfig:
-    SCREEN_ROTATION: int = 0
-    HEADLESS_MODE: bool = False
-    SCREEN_TARGET_FPS: int = 60
+    SCREEN_FLIP: bool = 'false'
+    SCREEN_MOCK: bool = 'false'
+    SCREEN_COLOR: str = 'yellow'
     PIHOLE_HOST: str = 'localhost'
-    PIHOLE_PORT: int = 4711
-    REFRESH_PERIOD: int = 60
-    PIHOLE_TOKEN: str = ''
+    PIHOLE_PORT: int = 80
+    PIHOLE_CONFDIR: str = '/etc/pihole'
+    REFRESH_PERIOD: int = 3600
+    LOCALE: str = 'en_US.UTF-8'
 
     """
     Map environment variables to class fields according to these rules:
@@ -50,7 +52,19 @@ class AppConfig:
                     var_type,
                     field
                 )
-            )
+                )
 
     def __repr__(self):
         return str(self.__dict__)
+
+
+class PiHoleConfig:
+    """
+    Retrieve additional config from PiHole own config
+    """
+
+    def __init__(self, app_conf: AppConfig):
+        self.pihole_vars = f'{app_conf.PIHOLE_CONFDIR}/setupVars.conf'
+        self.pihole_iface, self.pihole_token = get_env_from_file('PIHOLE_INTERFACE', 'WEBPASSWORD',
+                                                                 file_path=self.pihole_vars)
+        self.pihole_api_host = f'{app_conf.PIHOLE_HOST}:{app_conf.PIHOLE_PORT}'
