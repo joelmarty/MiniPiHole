@@ -1,31 +1,30 @@
-version: "2"
-
+---
+# https://hub.docker.com/r/pihole/pihole
+version: "3"
+# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
 services:
   pihole:
-    build:
-      context: ./pihole
-    tmpfs:
-      - /var/log/pihole
-    network_mode: host
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    secrets:
+      - pihole_webpw
     environment:
-      DNSMASQ_LISTENING: 'all'
-      WEB_BIND_ADDR: 0.0.0.0
+      TZ: 'Europe/Madrid'
+      WEBPASSWORD_FILE: '/run/secrets/pihole_webpw'
     # Volumes store your data between container upgrades
     volumes:
       - 'pihole-data:/etc/pihole'
       - 'dnsmasq-data:/etc/dnsmasq.d'
     restart: unless-stopped
-  minipadd:
-    build: .
-    environment:
-      PIHOLE_HOST: pihole
-      PIHOLE_PORT: 4711
-    devices:
-      - /dev/spidev0.0
-      - /dev/spidev0.1
-    volumes:
-      - 'pihole-data:/etc/pihole'
 
 volumes:
   pihole-data:
   dnsmasq-data:
+
+secrets:
+  pihole_webpw:
+    file: '/var/opt/pihole/pihole_webpw'
